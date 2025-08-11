@@ -1,1 +1,39 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load CSV
+df = pd.read_csv('/mnt/data/amazon.csv')
+
+# Remove currency symbols and convert prices to numeric
+df['discounted_price'] = df['discounted_price'].str.replace('₹', '').str.replace(',', '').astype(float)
+df['actual_price'] = df['actual_price'].str.replace('₹', '').str.replace(',', '').astype(float)
+df['discount_percentage'] = df['discount_percentage'].str.replace('%', '').astype(float)
+df['rating'] = pd.to_numeric(df['rating'], errors='coerce')
+df['rating_count'] = df['rating_count'].str.replace(',', '').astype(float)
+
+# 1. Top 10 products by rating count
+top_products = df.sort_values(by='rating_count', ascending=False).head(10)
+top_products.plot(x='product_name', y='rating_count', kind='bar', figsize=(10,5), title='Top 10 Most Reviewed Products')
+plt.ylabel('Rating Count')
+plt.xticks(rotation=75)
+plt.show()
+
+# 2. Average discounted price by category
+avg_price_cat = df.groupby('category')['discounted_price'].mean().sort_values(ascending=False)
+avg_price_cat.plot(kind='bar', figsize=(10,5), title='Average Discounted Price by Category')
+plt.ylabel('Avg Discounted Price (₹)')
+plt.xticks(rotation=90)
+plt.show()
+
+# 3. Average rating by category
+avg_rating_cat = df.groupby('category')['rating'].mean().sort_values(ascending=False)
+avg_rating_cat.plot(kind='bar', figsize=(10,5), color='orange', title='Average Rating by Category')
+plt.ylabel('Average Rating')
+plt.xticks(rotation=90)
+plt.show()
+
+# 4. Discount distribution
+df['discount_percentage'].plot(kind='hist', bins=20, color='green', figsize=(8,5), title='Discount Percentage Distribution')
+plt.xlabel('Discount %')
+plt.show()
 
